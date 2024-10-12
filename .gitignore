@@ -1,0 +1,43 @@
+# Python baynalmashin fayllari
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual muhitlar
+venv/
+env/
+.venv/
+.env/
+*.env
+
+# O'zgaruvchan fayllar
+*.db
+*.sqlite3
+
+# Mavjud bo'lgan log fayllari
+*.log
+
+# Pytest test natijalari
+.cache
+pytest_cache/
+*.coverage
+.coverage.*
+
+# IDE yoki tahrirlovchilarga oid fayllar
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# Docker fayllari (agar kerak bo'lsa)
+Dockerfile
+docker-compose.yml
+
+# Hujjatlar
+*.pdf
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
