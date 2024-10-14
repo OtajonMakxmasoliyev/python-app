@@ -29,19 +29,24 @@ def add_page_number(canvas, doc, date_time=None, line_color=colors.black, font_s
     canvas.setFont('DejaCondedBoldItalic', (font_size * 0.0138889) * inch)  
     
     # Draw page number at the specified position
-    canvas.drawString(201 * mm, 0.39 * inch, f"{page_number}")
+    canvas.drawString(7.58 * inch, 0.40 * inch, f"{page_number}")
     
     # If date_time is provided, draw it at the top-right position
     if date_time:
-        canvas.drawString(6.8 * inch, 11.25 * inch, date_time)
+        canvas.drawString(6.5 * inch, 11.23 * inch, date_time)
     
     # Set the stroke color dynamically using the provided argument
     canvas.setStrokeColor(line_color)
     canvas.setLineWidth(0.5)  # Set the line width
     
     # Draw lines at the bottom and top of the page
-    canvas.line(0.7 * inch, 0.5 * inch, 202.78 * mm, 0.5 * inch)
-    canvas.line(0.7 * inch, 11.2 * inch, 202.78 * mm, 11.2 * inch)
+    line_length = 7.09 * inch  # Set the line length to 7.09 inches
+    
+    # Bottom line (aligned horizontally with 0.60 inch from the left and line_length from there)
+    canvas.line(0.58 * inch, 0.5 * inch, 0.60 * inch + line_length, 0.5 * inch)
+    
+    # Top line (aligned the same way, just at the top of the page)
+    canvas.line(0.58 * inch, 11.18 * inch, 0.60 * inch + line_length, 11.18 * inch)
 
 
 # Register custom fonts
@@ -95,6 +100,31 @@ def convert_timestamp(ms_timestamp):
     return date_str
 
 
+def draw_content_borders(canvas, doc):
+    """ Draws borders for the content area within the margins. """
+    # Margins
+    left_margin = 0.60 * inch
+    right_margin = 0.60 * inch
+    top_margin = 50 * mm
+    bottom_margin = 50 * mm
+
+    # Page dimensions
+    PAGE_WIDTH, PAGE_HEIGHT = A4
+
+    # Calculate the coordinates for the content area
+    content_x1 = left_margin
+    content_y1 = bottom_margin
+    content_x2 = PAGE_WIDTH - right_margin
+    content_y2 = PAGE_HEIGHT - top_margin
+
+    # Draw the borders
+    canvas.setStrokeColor(colors.grey)  # Set border color
+    canvas.setLineWidth(0.5)  # Set border line width
+
+    # Draw the rectangle for the content area
+    canvas.rect(content_x1, content_y1, content_x2 - content_x1, content_y2 - content_y1)
+
+
 # Create the final PDF
 def create_final_pdf(data):
     # print(type(data))
@@ -118,8 +148,8 @@ def create_final_pdf(data):
     doc = SimpleDocTemplate(
         buffer,
         pagesize=A4,
-        rightMargin=15,
-        leftMargin=0.6 * inch,
+        rightMargin=0.60 * inch,
+        leftMargin=0.60 * inch,
         topMargin=50,
         bottomMargin=50,
     )
@@ -142,7 +172,7 @@ def create_final_pdf(data):
         name="CustomNormal",
         parent=styles["Normal"],
         fontName="CustomFontReg",
-        fontSize=9,
+        fontSize=0.1458333 * inch,
         leading=12,
         wordWrap="CJK",  # Enables word wrapping
         alignment=TA_CENTER,  # Matnni markazga hizalash
@@ -152,9 +182,9 @@ def create_final_pdf(data):
         parent=styles["Normal"],
         fontName="CustomFontReg",
         fontSize=9,
-        leading=12,
+        leading=9,
         wordWrap="CJK",  # Enables word wrapping
-        alignment=TA_LEFT,  # Matnni markazga hizalash
+        alignment=TA_JUSTIFY,  # Matnni markazga hizalash
     )
 
     custom_normal_bold = ParagraphStyle(
@@ -164,7 +194,7 @@ def create_final_pdf(data):
         fontSize=(22.5 / 72) * inch,
         leading=12,
         wordWrap="CJK",  # Enables word wrapping
-        alignment=TA_RIGHT,  # Matnni markazga hizalash
+        alignment=TA_CENTER,  # Matnni markazga hizalash
     )
     custom_normal_right = ParagraphStyle(
         name="CustomNormal",
@@ -185,6 +215,17 @@ def create_final_pdf(data):
         fontSize=9,
         leading=12,
         leftIndent=-8,  # 0 px left indent
+        wordWrap="CJK",  # Enables word wrapping
+        alignment=TA_LEFT,  # Matnni markazga hizalash
+        textColor=colors.HexColor("#333333"),
+    )
+    custom_normal_left_remove = ParagraphStyle(
+        name="CustomNormal",
+        parent=styles["Normal"],
+        fontName="CustomFontReg",
+        fontSize=9,
+        leading=12,
+        leftIndent=0,  # 0 px left indent
         wordWrap="CJK",  # Enables word wrapping
         alignment=TA_LEFT,  # Matnni markazga hizalash
         textColor=colors.HexColor("#333333"),
@@ -229,7 +270,7 @@ def create_final_pdf(data):
         name="CustomSans",
         parent=styles["Normal"],
         fontName="CustomSans",
-        fontSize=14,
+        fontSize=0.1458333 * inch,
         leading=14,
         leftIndent=20,  # Qo'shimcha sozlamalar
         rightIndent=20,  # Qo'shimcha sozlamalar
@@ -240,29 +281,27 @@ def create_final_pdf(data):
         name="CustomSansReg",
         parent=styles["Normal"],
         fontName="CustomSansReg",  # Agar bu font sizda bo'lmasa, o'zgartiring
-        fontSize=10,
+        fontSize=0.1458333 * inch,
         leading=14,
         spaceBefore=0,  # 0 px space before
         spaceAfter=0,  # 0 px space after
         # 0 px left indent
         rightIndent=0,  # 0 px right indent
+        leftIndent=-8,  # 0 px right indent
         firstLineIndent=0,  # 0 px first line indent
         alignment=TA_LEFT,  # Chapga hizalanish
         textColor=colors.HexColor("#333333"),  # Matn rangi
     )
-    # Add headings and spacing
     para1 = Paragraph("Single Portal of Interactive Public Services", deja_serif_bold)
 
     # 2. Image (Rasm)
     image_path = "./image/logo.png"  # Rasm faylini to'g'ri yo'lga o'zgartiring
-    # print(os.getcwd())
     if os.path.exists(image_path):
         logo = Image(image_path)
-        logo.drawWidth = 25.2 * mm
-        logo.drawHeight = 25.2 * mm
+        logo.drawWidth = 1.2 * inch
+        logo.drawHeight = 1.2 * inch
     else:
         logo = Paragraph("Rasm topilmadi", custom_normal)
-     #   print(f"Rasm fayli topilmadi: {image_path}")
 
     gov_image = "./image/gov_logo.png"
     if os.path.exists(gov_image):
@@ -271,11 +310,11 @@ def create_final_pdf(data):
         gov_logo.drawWidth = 39.5 * mm
     else:
         gov_logo = Paragraph("Rasm topilmadi", custom_normal)
-      #  print(f"Rasm fayli topilmadi: {gov_image}")
+
     # 3. Ikkinchi Paragraph
     para2 = [
         Paragraph("The State", custom_center_style),
-        Paragraph("Tax Committee ", custom_center_style),
+        Paragraph("Tax Committee", custom_center_style),
         Paragraph("of the", custom_center_style),
         Paragraph("Uzbekistan", custom_center_style),
     ]
@@ -285,16 +324,14 @@ def create_final_pdf(data):
     PAGE_WIDTH, PAGE_HEIGHT = A4
 
     available_width = PAGE_WIDTH
-#    print(available_width)
-#   print(PAGE_HEIGHT)
     # Ustunlar uchun foizlar (umumiy 100%)
-    col_percentages = [30, 20, 35]  # Foizlarni kerakli miqdorga moslang
+    col_percentages = [28, 27, 37]  # Foizlarni kerakli miqdorga moslang
 
     # Har bir ustunning kengligini hisoblash
     col_widths = [available_width * (percent / 100) for percent in col_percentages]
 
     # Jadvalni yaratish
-    table = Table(table_data, colWidths=col_widths, hAlign="LEFT")
+    table = Table(table_data, colWidths=col_widths, hAlign="CENTER")  # HAlign "CENTER" qilib qo'ydik
 
     # Jadval uslublari
     table.setStyle(
@@ -303,8 +340,7 @@ def create_final_pdf(data):
                 ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),  # Vertikal markazlashtirish
                 ("ALIGN", (0, 0), (-1, -1), "CENTER"),  # Gorizontal markazlashtirish
                 ("BOTTOMPADDING", (0, 0), (-1, -1), 12),  # Pastki padding
-                # Agar kerak bo'lsa, chegara chizig'ini qo'shishingiz mumkin
-                # ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                # ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),  # Agar kerak bo'lsa, tarmoq chizig'i
             ]
         )
     )
@@ -314,7 +350,7 @@ def create_final_pdf(data):
 
     # Add document details
     detail1 = [
-        f"No {obj['id']}",
+        f"№ {obj['id']}",
         f"Document creation date: {convert_timestamp(obj['createdAt'])}",
         f"Application number: {obj['applicationNumber']}",
     ]
@@ -323,19 +359,19 @@ def create_final_pdf(data):
         f"PINFL: {obj['pnfl']}",
     ]
 
-    formatted_detail1 = [Paragraph(detail1[0], custom_normal_left)]
+    formatted_detail1 = [Paragraph(detail1[0], custom_normal_left_remove)]
     formatted_detail2 = [Paragraph(detail2[0], custom_normal_right)]
 
     # detail1 va detail2 ni formatlash
     for i in range(1, len(detail1)):
-        formatted_detail1.append(Paragraph(detail1[i], custom_normal_left))
+        formatted_detail1.append(Paragraph(detail1[i], custom_normal_left_remove))
 
     for i in range(1, len(detail2)):
         formatted_detail2.append(Paragraph(detail2[i], custom_normal_right))
 
     # Har bir ustun uchun kengliklarni hisoblash
-    left_column_width = (available_width - 81) * 0.5  # Chap ustun uchun 50%
-    right_column_width = (available_width - 81) * 0.5  # O'ng ustun uchun 50%
+    left_column_width = (available_width - 75) * 0.5  # Chap ustun uchun 50%
+    right_column_width = (available_width - 80) * 0.5  # O'ng ustun uchun 50%
 
     # Yangi jadvalni yaratish
     table2 = Table(
@@ -367,46 +403,48 @@ def create_final_pdf(data):
     )
 
     # Jadvalni PDF ga qo'shish
-    elements.append(table2)
+    elements.append(table2)  # Har bir elementni chapdan chiqarish uchun "deja_sans_left" uslubini qo'llaymiz
     elements.append(Spacer(1, (0.5 * inch)))
-    elements.append(Paragraph("INCOME STATEMENT", deja_sans))
-    elements.append(Spacer(1, (0.5 * inch)))
-    elements.append(
-        Paragraph(f"Name: {obj['fullName'].upper()}", deja_sans_left)
-    )
-    elements.append(Paragraph("TIN:", deja_sans_left))
-    elements.append(Paragraph(f"PRSA: {obj['pnfl']}", deja_sans_left))
-    elements.append(Spacer(2, 12))
+    elements.append(Paragraph("INCOME STATEMENT", deja_sans))  # Chapdan hizalanadi
+    elements.append(Spacer(0, (0.51 * inch)))
+
+    # Foydalanuvchi to'liq ismini ko'rsatish
+    elements.append(Paragraph(f"Name: {obj['fullName'].upper()}", deja_sans_left))  # Chapdan hizalanadi
+    elements.append(Paragraph("TIN:", deja_sans_left))  # Chapdan hizalanadi
+    elements.append(Paragraph(f"PRSA: {obj['pnfl']}", deja_sans_left))  # Chapdan hizalanadi
+    elements.append(Spacer(2, 0.51 * inch))
     elements.append(
         Paragraph(
             "Issued in that the above person has received the following income:",
-            deja_sans_left,
+            deja_sans_left,  # Chapdan hizalanadi
         )
     )
+    elements.append(Spacer(2, 0.11 * inch))
 
+    # Umumiy daromad va soliqni hisoblash
     total_salary = 0
     total_tax = 0
     for salary_entry in obj["salaries"]:
         salary = salary_entry['salary']
         tax = salary_entry['tax']
         if salary:
-            # MongoDB Extended JSON formatini tekshirish
-                salary = int(salary)
+            salary = int(salary)  # MongoDB Extended JSON formatini tekshirish
         else:
-             salary = 0
+            salary = 0
         total_salary += salary
 
         if tax:
-            # MongoDB Extended JSON formatini tekshirish
-                tax = int(tax)
+            tax = int(tax)  # MongoDB Extended JSON formatini tekshirish
         else:
-             tax = 0
+            tax = 0
         total_tax += tax
 
-    elements.append(Paragraph(f"Total estimated salary: {format_number_with_spaces(total_salary)}", deja_sans_left))
-    elements.append(Spacer(0.5, 12))
-    elements.append(Paragraph(f"Income tax: {format_number_with_spaces(total_tax)}", deja_sans_left))
-    elements.append(Spacer(1.5, 12))
+    # Umumiy daromad va soliqni ko'rsatish
+    elements.append(Paragraph(f"Total estimated salary: {format_number_with_spaces(total_salary)}", deja_sans_left))  # Chapdan hizalanadi
+    elements.append(Spacer(2, 0.28 * inch))
+
+    elements.append(Paragraph(f"Income tax: {format_number_with_spaces(total_tax)}", deja_sans_left))  # Chapdan hizalanadi
+    elements.append(Spacer(1.5, 0.44 * inch))
 
     # Define table data with Paragraphs for better text handling
     table_data = [
@@ -451,12 +489,12 @@ def create_final_pdf(data):
     # Define column widths (adjusted for better spacing)
 
     col_widths = [
-        15 * mm,  # Converted from 40 points
-        23 * mm,  # Converted from 60.8 points
-        64 * mm,  # Converted from 176.4 points
-        24.40 * mm,  # Converted from 69.2 points
-        24.27 * mm,  # Converted from 68.8 points
-        35.89 * mm,  # Converted from 101.85 points
+        0.50 * inch,  # Converted from 40 points
+        0.85 * inch,  # Converted from 60.8 points
+        2.18 * inch,  # Converted from 176.4 points
+        1.21 * inch,  # Converted from 69.2 points
+        1.16 * inch,  # Converted from 68.8 points
+        1.20 * inch,  # Converted from 101.85 points
     ]
 
     # Create the table
@@ -476,12 +514,12 @@ def create_final_pdf(data):
                 ("BACKGROUND", (0, 1), (-1, -1), colors.white),  # Body background
                 ("GRID", (0, 0), (-1, -1), 0.5, colors.black),  # Grid lines
                 ("FONTNAME", (0, 1), (-1, -1), "CustomFontReg"),  # Body font
-                ("LEFTPADDING", (0, 0), (-1, -1), 10),  # Chapdan paddingni olib tashlash
+                # ("LEFTPADDING", (0, 0), (-1, -1), 15),  # Chapdan paddingni olib tashlash
                 (
                     "RIGHTPADDING",
                     (0, 0),
                     (-1, -1),
-                    10,
+                    0,
                 ),  # O'ngdan paddingni olib tashlash
                 ("TOPPADDING", (0, 0), (-1, -1), 10),
                 ("FONTSIZE", (0, 1), (-1, -1), 9),  # Body font size
@@ -494,13 +532,12 @@ def create_final_pdf(data):
     elements.append(Spacer(1, (0.3 * inch)))
     qr_data = f"https://pincode-rose.vercel.app?id={objStr['_id']}"
 
-
     # QR kod yaratish
     qr = qrcode.QRCode(
         version=6,  # Kattaroq versiya tanlash (1-40 oralig'ida)
         error_correction=qrcode.constants.ERROR_CORRECT_H,  # O'xshash xatolarni to'g'rilash darajasi (H = yuqori)
         box_size=20,  # Har bir qutining o'lchamini kattalashtirish
-        border=4,  # Chekka qirralarni kattalashtirish
+        border=0,  # Chekka qirralarni 0 qilib qo'yamiz
     )
 
     qr.add_data(qr_data)
@@ -511,32 +548,39 @@ def create_final_pdf(data):
 
     # QR kodni xotirada saqlash uchun BytesIO obyektini yaratish
     qr_buffer = BytesIO()
-    qr_img.save(qr_buffer, format="PNG")  # QR kodni xotiraga PNG formatida saqlash
-    qr_buffer.seek(0)  # Bufferning boshlanishiga qaytish
 
-    footer = Paragraph(
-        """This document is a copy of an electronic document generated in accordance with the
-        provision on the Single Portal of Interactive Public Services, approved by the provision
-        of the Cabinet of Ministers of the Republic of Uzbekistan dated September 15, 2017
-        No. 728. To check the accuracy of the information specified in the copy of the
-        electronic document, go to the website repo.gov.uz and enter the unique number of the
-        electronic document, or scan the QR code using a mobile device. Attention! In
-        accordance with the provision of the Cabinet of Ministers of the Republic of Uzbekistan
-        dated September 15, 2017 No. 728, the information contained in electronic documents
-        is legitimate. It is strictly forbidden for state bodies to refuse to accept copies of
-        electronic documents generated on the Single Portal of Interactive Public Services.""",
-        custom_normal_footer,
+    # QR kodning o'lchamini 1.03 inch ga o'rnatish
+    target_size = 1.03 * inch  # O'lchovlarni belgilash
+
+    # QR kodni ko'rsatish va kenglik va balandlikni o'rnatish
+    qr_img = qr_img.resize((int(target_size), int(target_size)))
+
+    qr_img.save(qr_buffer, format="PNG")  # QR kodni xotiraga PNG formatida saqlash
+    qr_buffer.seek(0)  #
+    footer_style = ParagraphStyle(
+        name="FooterStyle",
+        fontName="CustomFontReg",  # O'zingizga kerakli font nomini qo'yishingiz mumkin
+        fontSize=9,  # Font o'lchami
+        leading=9,  # Qator balandligi
+        textColor=colors.HexColor("#333333"),  # Matn rangi
+        parent=styles["Normal"],
+        # wordWrap="CJK",  # Enables word wrapping
+        alignment=TA_JUSTIFY,
     )
+    footer = Paragraph(
+        "This document is a copy of an electronic document generated in accordance with the provision on the Single Portal of Interactive Public Services, approved by the provision of the Cabinet of Ministers of the Republic of Uzbekistan dated September 15, 2017 No. 728. To check the accuracy of the information specified in the copy of the electronic document, go to the website repo.gov.uz and enter the unique number of the electronic document, or scan the QR code using a mobile device. Attention! In accordance with the provision of the Cabinet of Ministers of the Republic of Uzbekistan dated September 15, 2017 No. 728, the information contained in electronic documents is legitimate. It is strictly forbidden for state bodies to refuse to accept copies of electronic documents generated on the Single Portal of Interactive Public Services.",
+        footer_style,
+        )
    
     pin_code = Paragraph(str(objStr["pin"]), custom_normal_bold)
 #    pin_code = Paragraph(f"{obj["pin"]}", custom_normal_bold)
     qr_code_img = Image(
-        qr_buffer, width=1.2 * inch, height=1.2 * inch
+        qr_buffer, width=1.03 * inch, height=1.03 * inch
     )  # QR kod rasm o'lchamini sozlash
 
-    left_column_width = 5.28 * inch
-    center_column_width = 0.8 * inch
-    right_column_width = 1.2 * inch
+    left_column_width = 5.15 * inch
+    center_column_width = 0.94 * inch
+    right_column_width = 1.05 * inch
     
     # Jadvalga QR kodni kiritish
     table3 = Table(
@@ -560,8 +604,14 @@ def create_final_pdf(data):
     elements.append(table3)
     doc.build(
         elements,
-        onFirstPage=lambda canvas, doc: add_page_number(canvas, doc, date_time="2024-10-08 14:22:00", line_color=colors.black, font_size=8),
-        onLaterPages=lambda canvas, doc: add_page_number(canvas, doc, date_time="2024-10-08 14:22:00", line_color=colors.black, font_size=8)
+        onFirstPage=lambda canvas, doc: [
+            add_page_number(canvas, doc, date_time="2024-10-08 14:22:00", line_color=colors.black, font_size=8),
+            # draw_content_borders(canvas, doc)  # Chegaralarni chizish
+        ],
+        onLaterPages=lambda canvas, doc: [
+            add_page_number(canvas, doc, date_time="2024-10-08 14:22:00", line_color=colors.black, font_size=8),
+            # draw_content_borders(canvas, doc)  # Chegaralarni chizish
+        ]
     )
     # print(f"Final PDF with custom font created successfully: {output_path}")
     buffer.seek(0) 
