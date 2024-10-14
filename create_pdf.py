@@ -519,7 +519,7 @@ def create_final_pdf(data):
                     "RIGHTPADDING",
                     (0, 0),
                     (-1, -1),
-                    8,
+                    4,
                 ),  # O'ngdan paddingni olib tashlash
                 ("TOPPADDING", (0, 0), (-1, -1), 10),
                 ("FONTSIZE", (0, 1), (-1, -1), 9),  # Body font size
