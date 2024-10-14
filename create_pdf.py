@@ -29,7 +29,7 @@ def add_page_number(canvas, doc, date_time=None, line_color=colors.black, font_s
     canvas.setFont('DejaCondedBoldItalic', (font_size * 0.0138889) * inch)  
     
     # Draw page number at the specified position
-    canvas.drawString(7.58 * inch, 0.40 * inch, f"{page_number}")
+    canvas.drawString(7.59 * inch, 0.38 * inch, f"{page_number}")
     
     # If date_time is provided, draw it at the top-right position
     if date_time:
