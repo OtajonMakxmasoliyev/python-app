@@ -306,8 +306,8 @@ def create_final_pdf(data):
     gov_image = "./image/gov_logo.png"
     if os.path.exists(gov_image):
         gov_logo = Image(gov_image)
-        gov_logo.drawHeight = 9 * mm
-        gov_logo.drawWidth = 39.5 * mm
+        gov_logo.drawHeight = 0.37 * inch
+        gov_logo.drawWidth = 1.58 * inch
     else:
         gov_logo = Paragraph("Rasm topilmadi", custom_normal)
 
